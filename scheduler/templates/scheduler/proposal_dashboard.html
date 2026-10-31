@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable Proposals</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #24364b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #24364b;
+            color: white;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .empty {
+            padding: 25px;
+            text-align: center;
+            color: #777;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Timetable Proposal Dashboard</h1>
+
+    <p>Manage generated timetable proposals for your academic terms.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Proposal Name</th>
+                <th>Academic Term</th>
+                <th>Status</th>
+                <th>Date Created</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for proposal in proposals %}
+            <tr>
+                <td>{{ proposal.name }}</td>
+                <td>{{ proposal.term.name }}</td>
+                <td class="status">{{ proposal.get_status_display }}</td>
+                <td>{{ proposal.created_at|date:"d M Y, H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="empty">
+                    No timetable proposals have been created yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a class="back" href="/admin/">Return to Django Administration</a>
+
+</div>
+</body>
+</html>

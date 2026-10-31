@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Timetable</title>
+
+    <style>
+        :root {
+            --primary: #173b67;
+            --accent: #2563eb;
+            --background: #f4f7fb;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 28px 20px;
+        }
+
+        .header-content, main {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        header p {
+            margin: 0;
+            color: #dbeafe;
+        }
+
+        main {
+            padding: 28px 20px;
+        }
+
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .count {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        .count strong {
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        th {
+            background: #eef3f9;
+            color: var(--primary);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .course-code {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .empty {
+            padding: 35px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 23px;
+            }
+
+            main {
+                padding: 18px 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-content">
+            <h1>University Timetable</h1>
+            <p>Published teaching schedule</p>
+        </div>
+    </header>
+
+    <main>
+	
+    <form method="get" style="background:white; padding:18px; border:1px solid #e2e8f0; border-radius:12px; margin-bottom:20px; display:flex; gap:12px; align-items:end; flex-wrap:wrap;">
+      <div>
+          <label for="term" style="display:block; margin-bottom:8px; font-weight:600;">
+             Academic Term
+          </label>
+
+          <select id="term" name="term" style="padding:10px; min-width:240px; border:1px solid #cbd5e1; border-radius:6px;">
+              <option value="">All academic terms</option>
+
+              {% for term in terms %}
+                  <option value="{{ term.id }}" {% if selected_term == term.id|stringformat:"s" %}selected{% endif %}>
+                      {{ term.name }}
+                  </option>
+              {% endfor %}
+          </select>
+      </div>
+      <div>
+    <label for="group" style="display:block; margin-bottom:8px; font-weight:600;">
+        Student Group
+    </label>
+
+    <select id="group" name="group" style="padding:10px; min-width:200px; border:1px solid #cbd5e1; border-radius:6px;">
+        <option value="">All student groups</option>
+
+        {% for group in groups %}
+            <option value="{{ group.id }}" {% if selected_group == group.id|stringformat:"s" %}selected{% endif %}>
+                {{ group.group_name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+	
+<div>
+    <label for="lecturer" style="display:block; margin-bottom:8px; font-weight:600;">
+        Lecturer
+    </label>
+
+    <select id="lecturer" name="lecturer" style="padding:10px; min-width:200px; border:1px solid #cbd5e1; border-radius:6px;">
+        <option value="">All lecturers</option>
+
+        {% for lecturer in lecturers %}
+            <option value="{{ lecturer.id }}" {% if selected_lecturer == lecturer.id|stringformat:"s" %}selected{% endif %}>
+                {{ lecturer.full_name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+
+      <button type="submit" style="padding:10px 18px; background:#173b67; color:white; border:0; border-radius:6px; cursor:pointer;">
+          Filter Timetable
+      </button>
+
+      <a href="{% url 'scheduler:published_timetable' %}" style="padding:10px; color:#2563eb; text-decoration:none;">
+          Clear Filter
+      </a>
+  </form>
+
+        <div class="summary">
+            <div>
+                <h2>Teaching Sessions</h2>
+                <p>View the current published timetable below.</p>
+            </div>
+
+            <div class="count">
+                <strong>{{ sessions|length }}</strong>
+                <div class="muted">Published sessions</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            {% if sessions %}
+		
+
+<h2 style="margin-top:30px;">Weekly Timetable</h2>
+
+<div class="table-container" style="margin-bottom:30px;">
+    <table style="min-width:1000px;">
+        <thead>
+            <tr>
+                <th>Time</th>
+                {% for day_number, day_name in weekdays %}
+                    <th>{{ day_name }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+
+        <tbody>
+		
+{% for row in grid %}
+    {% if row.is_break %}
+        <tr>
+            <td colspan="7" style="text-align:center; background:#fef3c7; font-weight:bold; padding:12px;">
+                {{ row.label }}
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td style="white-space:nowrap; font-weight:600;">
+                {{ row.start_time|time:"H:i" }}–{{ row.end_time|time:"H:i" }}
+            </td>
+
+            {% for day in row.days %}
+                <td style="min-width:150px;">
+                    {% for session in day.sessions %}
+                        <div style="background:#dbeafe; border-left:4px solid #2563eb; border-radius:5px; padding:10px; margin-bottom:8px;">
+                            <div class="course-code">{{ session.offering.course.code }}</div>
+                            <strong>{{ session.offering.course.title }}</strong>
+                            <div class="muted">Room: {{ session.classroom.name }}</div>
+                            <div class="muted">
+                                {% for lecturer in session.lecturers.all %}
+                                    {{ lecturer.full_name }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    Lecturer not assigned
+                                {% endfor %}
+                            </div>
+                            <div class="muted">
+                                {% for group in session.student_groups.all %}
+                                    {{ group.group_name }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    Group not assigned
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <span class="muted">Free</span>
+                    {% endfor %}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endif %}
+{% empty %}
+    <tr>
+        <td colspan="7" class="empty">No active time slots are configured for Monday to Saturday.</td>
+    </tr>
+{% endfor %}
+            
+       </tbody>
+    </table>
+</div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Time</th>
+                            <th>Course</th>
+                            <th>Academic Term</th>
+                            <th>Lecturer(s)</th>
+                            <th>Student Group(s)</th>
+                            <th>Classroom</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for session in sessions %}
+                            <tr>
+                                <td>
+                                    {{ session.time_slot.get_weekday_display }}
+                                </td>
+
+                                <td>
+                                    {{ session.time_slot.start_time|time:"H:i" }}
+                                    –
+                                    {{ session.time_slot.end_time|time:"H:i" }}
+                                </td>
+
+                                <td>
+                                    <div class="course-code">
+                                        {{ session.offering.course.code }}
+                                    </div>
+                                    <div>
+                                        {{ session.offering.course.title }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {{ session.offering.term.name }}
+                                </td>
+
+                                <td>
+                                    {% for lecturer in session.lecturers.all %}
+                                        {{ lecturer.full_name }}{% if not forloop.last %}, {% endif %}
+                                    {% empty %}
+                                        Not assigned
+                                    {% endfor %}
+                                </td>
+
+                                <td>
+                                    {% for group in session.student_groups.all %}
+                                        {{ group.group_name }}{% if not forloop.last %}, {% endif %}
+                                    {% empty %}
+                                        Not assigned
+                                    {% endfor %}
+                                </td>
+
+                                <td>{{ session.classroom.name }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty">
+                    <h3>No published sessions found</h3>
+                    <p>Published timetable sessions will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+
+
+    </main>
+
+    <footer>
+        University Timetable Management System
+    </footer>
+</body>
+</html>

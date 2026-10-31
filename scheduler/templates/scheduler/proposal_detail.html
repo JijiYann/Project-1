@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Timetable Proposal</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        h1, h2 { color: #24364b; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #24364b;
+            color: white;
+        }
+
+        .error {
+            background: #fff0f0;
+            border-left: 5px solid #c0392b;
+            padding: 12px;
+            margin: 8px 0;
+        }
+
+        .warning {
+            background: #fff5dc;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Timetable Proposal Review</h1>
+
+    <td>
+    <a href="{% url 'scheduler:proposal_detail' proposal.id %}">
+        {{ proposal.name }}
+    </a>
+</td>
+
+    <p><strong>Academic Term:</strong> {{ proposal.term.name }}</p>
+    <p><strong>Status:</strong> {{ proposal.get_status_display }}</p>
+    <p><strong>Created:</strong> {{ proposal.created_at }}</p>
+
+    {% if validation_errors %}
+        <h2>Validation Errors</h2>
+
+        <div class="warning">
+            This proposal has validation errors and is not ready for approval.
+        </div>
+
+        {% for error in validation_errors %}
+            <div class="error">{{ error }}</div>
+        {% endfor %}
+    {% else %}
+        <h2>Validation Results</h2>
+        <p>No validation errors are currently recorded.</p>
+    {% endif %}
+
+    <h2>Proposed Teaching Sessions</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Course Code</th>
+                <th>Course Title</th>
+                <th>Day</th>
+                <th>Time Slot</th>
+                <th>Classroom</th>
+                <th>Lecturers</th>
+                <th>Student Groups</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for session in proposed_sessions %}
+            <tr>
+                <td>{{ session.course_code }}</td>
+                <td>{{ session.course_title }}</td>
+                <td>{{ session.day }}</td>
+                <td>
+                    {{ session.start_time }} - {{ session.end_time }}
+                </td>
+                <td>{{ session.classroom }}</td>
+                <td>
+                    {% for lecturer in session.lecturers %}
+                        {{ lecturer }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        Not assigned
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for group in session.student_groups %}
+                        {{ group }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        Not assigned
+                    {% endfor %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">No proposed sessions available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a class="back" href="{% url 'scheduler:proposal_dashboard' %}">
+        Return to Proposal Dashboard
+    </a>
+
+</div>
+</body>
+</html>

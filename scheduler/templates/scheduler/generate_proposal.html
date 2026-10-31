@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Timetable Proposal</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        h1 { color: #24364b; }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 25px;
+            padding: 13px 20px;
+            background: #24364b;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back { display: block; margin-top: 20px; }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Generate Timetable Proposal</h1>
+
+    <p>Select an academic term to generate a proposed timetable.</p>
+
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label for="name">Proposal Name</label>
+        <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Example: Semester 1 Timetable Proposal"
+        >
+
+        <label for="term">Academic Term</label>
+
+        <select id="term" name="term" required>
+            <option value="">-- Select Academic Term --</option>
+
+            {% for term in terms %}
+                <option value="{{ term.id }}">
+                    {{ term.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">
+            Generate Timetable Proposal
+        </button>
+    </form>
+
+    <a class="back" href="{% url 'scheduler:proposal_dashboard' %}">
+        Return to Proposal Dashboard
+    </a>
+
+</div>
+</body>
+</html>
